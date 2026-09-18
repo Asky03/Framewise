@@ -1,98 +1,30 @@
-# FRAMEWISE — Interactive Photography Learning Lab
+# FRAMEWISE — Photography Learning Lab
 
-FRAMEWISE is an open-source, hands-on photography learning platform that helps users understand camera settings through interactive simulations.
+Phase 3 fixes and upgrades the Depth of Field simulator.
 
-Instead of only reading theory, learners can adjust camera parameters and observe how those changes affect a virtual scene.
+## Run locally
 
-## Features
-
-* Interactive Depth of Field simulator
-* 3D viewfinder scene
-* Optical side-view diagram
-* Aperture, focal length, focus distance, and subject position controls
-* Portrait, Landscape, Street, and Macro presets
-* Beginner, Intermediate, and Professional learning modes
-* Responsive design for desktop and mobile
-* Sony Alpha 6700 reference profile for educational purposes
-
-## Tech Stack
-
-* Next.js
-* React
-* TypeScript
-* Three.js
-* React Three Fiber
-* React Three Drei
-* CSS
-
-## Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
-```
-
-### 2. Install dependencies
-
-```bash
+```powershell
 npm install
-```
-
-### 3. Run the development server
-
-```bash
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open http://localhost:3000
 
-### 4. Run production checks
+## Production checks
 
-```bash
+```powershell
 npm run lint
 npm run build
 ```
 
-## Project Structure
+## What changed
 
-```text
-app/
-  learn/
-  page.tsx
-  globals.css
-
-components/
-  DepthOfFieldLab.tsx
-
-docs/
-  SECURITY.md
-```
-
-## Roadmap
-
-* [ ] More accurate depth-of-field calculations
-* [ ] Exposure Triangle simulator
-* [ ] Shutter speed and motion blur simulation
-* [ ] Focal length and perspective simulator
-* [ ] Lighting and composition labs
-* [ ] Accessibility improvements
-* [ ] Mobile interaction improvements
-* [ ] Community contributions
-
-## Disclaimer
-
-The camera profiles and optical simulations are educational approximations. They are not intended to replace official camera manuals or calibrated optical tools.
-
-Sony Alpha 6700 is referenced for educational comparison. This project does not claim affiliation with Sony.
-
-## Contributing
-
-Contributions, bug reports, suggestions, and educational improvements are welcome.
-
-Please read `CONTRIBUTING.md` before submitting a pull request.
-
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
+- Full-width centered responsive layout with no unused white side columns.
+- Fixed canvas sizing so the 3D simulator remains visible.
+- Live range controls with visible numeric values.
+- Animated 3D scene with play/pause and reset controls.
+- Separate 3D view and optical side-view diagram.
+- Focus plane, near/far depth-of-field bounds, and subject movement.
+- Beginner, intermediate, and professional explanations.
+- No external image or camera trademark assets are bundled; the Sony Alpha 6700 option is a learning reference profile.
