@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera, Text } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, Html } from "@react-three/drei";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -16,67 +16,306 @@ const presets: Preset[] = [
   { name: "Macro", aperture: 5.6, focal: 100, focus: 0.8, subject: 0.8 }
 ];
 
+
 function Scene({
   aperture,
   focal,
   focus,
   subject,
-  playing
+  playing,
+  cameraHeight,
+  cameraAngle
 }: {
   aperture: number;
   focal: number;
   focus: number;
   subject: number;
   playing: boolean;
+  cameraHeight: number;
+  cameraAngle: number;
 }) {
   const animatedGroup = useRef<THREE.Group>(null);
-  const blur = Math.min(0.65, Math.max(0.02, (aperture - 1.4) / 23));
-  const cameraFov = Math.max(26, Math.min(62, 48 + (50 - focal) * 0.13));
+
+  const blur = Math.min(
+    0.65,
+    Math.max(0.02, (aperture - 1.4) / 23)
+  );
+
+  const cameraFov = Math.max(
+    26,
+    Math.min(62, 48 + (50 - focal) * 0.13)
+  );
+
+  const cameraRadius = 10;
+  const angleInRadians = THREE.MathUtils.degToRad(cameraAngle);
+
+  const cameraPosition: [number, number, number] = [
+    Math.sin(angleInRadians) * cameraRadius,
+    2.8 + cameraHeight,
+    -Math.cos(angleInRadians) * cameraRadius
+  ];
 
   useFrame((state, delta) => {
     if (!animatedGroup.current) return;
-    const target = playing ? Math.sin(state.clock.elapsedTime * 1.35) * 0.16 : 0;
-    animatedGroup.current.position.x = THREE.MathUtils.damp(animatedGroup.current.position.x, target, 4, delta);
-    animatedGroup.current.rotation.y = THREE.MathUtils.damp(animatedGroup.current.rotation.y, playing ? Math.sin(state.clock.elapsedTime * 0.8) * 0.06 : 0, 4, delta);
+
+    const movement = playing
+      ? Math.sin(state.clock.elapsedTime * 1.35) * 0.16
+      : 0;
+
+    const rotation = playing
+      ? Math.sin(state.clock.elapsedTime * 0.8) * 0.06
+      : 0;
+
+    animatedGroup.current.position.x = THREE.MathUtils.damp(
+      animatedGroup.current.position.x,
+      movement,
+      4,
+      delta
+    );
+
+    animatedGroup.current.rotation.y = THREE.MathUtils.damp(
+      animatedGroup.current.rotation.y,
+      rotation,
+      4,
+      delta
+    );
   });
 
-  const objects = useMemo(() => [
-    { name: "Foreground", x: -2.6, z: 1.2, size: 1.1, color: "#6c665b", opacity: 1 - blur * 0.55 },
-    { name: "Subject", x: 0, z: subject, size: 1.35, color: "#b85c38", opacity: 1 },
-    { name: "House", x: 2.4, z: 7, size: 1.9, color: "#8c725a", opacity: 1 - blur * 0.85 },
-    { name: "Mountain", x: 4.4, z: 10, size: 2.5, color: "#8c9680", opacity: 1 - blur }
-  ], [blur, subject]);
+  const getOpacity = (distance: number) => {
+    const difference = Math.abs(distance - focus);
+    return Math.max(0.42, 1 - difference * blur * 0.12);
+  };
 
   return (
     <>
       <color attach="background" args={["#d9d2c2"]} />
+
       <ambientLight intensity={1.8} />
-      <directionalLight position={[-4, 8, 3]} intensity={3.2} />
-      <PerspectiveCamera makeDefault position={[0, 2.8, -10]} fov={cameraFov} />
-      <OrbitControls enablePan={false} minDistance={6} maxDistance={16} target={[0, 1.2, 4]} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 5]}>
-        <planeGeometry args={[20, 28]} />
-        <meshStandardMaterial color="#8b9874" roughness={1} />
+
+      <directionalLight
+        position={[-4, 8, 3]}
+        intensity={3.2}
+      />
+
+      <PerspectiveCamera
+        makeDefault
+        position={cameraPosition}
+        fov={cameraFov}
+      />
+
+      <OrbitControls
+        enablePan={false}
+        minDistance={6}
+        maxDistance={16}
+        target={[0, 1.5, 4]}
+      />
+
+      {/* Ground */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0, 5]}
+      >
+        <planeGeometry args={[22, 28]} />
+        <meshStandardMaterial
+          color="#8b9874"
+          roughness={1}
+        />
       </mesh>
-      <gridHelper args={[20, 20, "#d8c5a5", "#b9b394"]} position={[0, 0.025, 5]} />
+
+      <gridHelper
+        args={[20, 20, "#d8c5a5", "#b9b394"]}
+        position={[0, 0.025, 5]}
+      />
+
       <group ref={animatedGroup}>
-        {objects.map((object) => (
-          <group key={object.name} position={[object.x, object.size / 2, object.z]}>
-            <mesh scale={object.size}>
-              <sphereGeometry args={[0.65, 32, 20]} />
-              <meshStandardMaterial color={object.color} transparent opacity={object.opacity} roughness={0.82} />
-            </mesh>
-            <Text position={[0, object.size + 0.4, 0]} fontSize={0.22} color="#292824" anchorX="center">
-              {object.name}
-            </Text>
-          </group>
-        ))}
+
+        {/* Foreground rock */}
+        <group position={[-3, 0.65, 1.2]}>
+          <mesh scale={[1.3, 0.8, 1]}>
+            <dodecahedronGeometry args={[0.8, 1]} />
+            <meshStandardMaterial
+              color="#625e52"
+              transparent
+              opacity={getOpacity(1.2)}
+              roughness={0.9}
+            />
+          </mesh>
+
+          <Html
+            position={[0, 1.3, 0]}
+            center
+            sprite
+            distanceFactor={10}
+          >
+            <div className="sceneLabel">Foreground rock</div>
+          </Html>
+        </group>
+
+        {/* Person / subject */}
+        <group position={[0, 0, subject]}>
+
+          {/* Legs */}
+          <mesh position={[-0.18, 0.45, 0]}>
+            <capsuleGeometry args={[0.09, 0.65, 8, 16]} />
+            <meshStandardMaterial color="#292c38" />
+          </mesh>
+
+          <mesh position={[0.18, 0.45, 0]}>
+            <capsuleGeometry args={[0.09, 0.65, 8, 16]} />
+            <meshStandardMaterial color="#292c38" />
+          </mesh>
+
+          {/* Body */}
+          <mesh position={[0, 1.35, 0]}>
+            <capsuleGeometry args={[0.32, 0.85, 8, 16]} />
+            <meshStandardMaterial color="#b85c38" />
+          </mesh>
+
+          {/* Head */}
+          <mesh position={[0, 2.25, 0]}>
+            <sphereGeometry args={[0.28, 24, 18]} />
+            <meshStandardMaterial color="#c58c68" />
+          </mesh>
+
+          {/* Hair */}
+          <mesh position={[0, 2.46, 0]}>
+            <sphereGeometry args={[0.29, 24, 12]} />
+            <meshStandardMaterial color="#302820" />
+          </mesh>
+
+          {/* Arms */}
+          <mesh
+            position={[-0.43, 1.35, 0]}
+            rotation={[0, 0, -0.18]}
+          >
+            <capsuleGeometry args={[0.08, 0.6, 8, 16]} />
+            <meshStandardMaterial color="#c58c68" />
+          </mesh>
+
+          <mesh
+            position={[0.43, 1.35, 0]}
+            rotation={[0, 0, 0.18]}
+          >
+            <capsuleGeometry args={[0.08, 0.6, 8, 16]} />
+            <meshStandardMaterial color="#c58c68" />
+          </mesh>
+
+          <Html
+            position={[0, 3, 0]}
+            center
+            sprite
+            distanceFactor={10}
+          >
+            <div className="sceneLabel subjectLabel">
+              Subject
+            </div>
+          </Html>
+        </group>
+
+        {/* House */}
+        <group position={[2.8, 0, 7]}>
+
+          {/* House body */}
+          <mesh position={[0, 1.35, 0]}>
+            <boxGeometry args={[2.6, 2.7, 2.1]} />
+            <meshStandardMaterial
+              color="#a95d35"
+              transparent
+              opacity={getOpacity(7)}
+              roughness={0.9}
+            />
+          </mesh>
+
+          {/* Roof */}
+          <mesh
+            position={[0, 3.15, 0]}
+            rotation={[0, Math.PI / 4, 0]}
+          >
+            <coneGeometry args={[2.15, 1.25, 4]} />
+            <meshStandardMaterial
+              color="#5b3929"
+              transparent
+              opacity={getOpacity(7)}
+              roughness={0.9}
+            />
+          </mesh>
+
+          {/* Door */}
+          <mesh position={[0, 0.75, -1.08]}>
+            <boxGeometry args={[0.55, 1.35, 0.06]} />
+            <meshStandardMaterial color="#e6d6b8" />
+          </mesh>
+
+          {/* Window */}
+          <mesh position={[0.75, 1.65, -1.08]}>
+            <boxGeometry args={[0.45, 0.45, 0.06]} />
+            <meshStandardMaterial color="#d9e5e0" />
+          </mesh>
+
+          <Html
+            position={[0, 4.1, 0]}
+            center
+            sprite
+            distanceFactor={10}
+          >
+            <div className="sceneLabel">
+              House
+            </div>
+          </Html>
+        </group>
+
+        {/* Mountain */}
+        <group position={[5, 0, 10]}>
+
+          <mesh position={[0, 2.5, 0]}>
+            <coneGeometry args={[3.4, 5, 4]} />
+            <meshStandardMaterial
+              color="#7f8c83"
+              transparent
+              opacity={getOpacity(10)}
+              roughness={1}
+            />
+          </mesh>
+
+          <mesh position={[-2.3, 1.5, 0.5]}>
+            <coneGeometry args={[2.4, 3, 4]} />
+            <meshStandardMaterial
+              color="#9ba594"
+              transparent
+              opacity={getOpacity(10)}
+              roughness={1}
+            />
+          </mesh>
+
+          <Html
+            position={[0, 5.5, 0]}
+            center
+            sprite
+            distanceFactor={10}
+          >
+            <div className="sceneLabel">
+              Mountain
+            </div>
+          </Html>
+        </group>
       </group>
-      <mesh position={[0, 1.45, focus]}>
-        <boxGeometry args={[6.5, 0.035, 0.035]} />
+
+      {/* Focus plane */}
+      <mesh position={[0, 1.5, focus]}>
+        <boxGeometry args={[7, 0.035, 0.035]} />
         <meshBasicMaterial color="#b85c38" />
       </mesh>
-      <Text position={[0, 0.18, focus]} fontSize={0.2} color="#b85c38">FOCUS PLANE</Text>
+
+      <Html
+        position={[0, 0.2, focus]}
+        center
+        sprite
+        distanceFactor={10}
+      >
+        <div className="focusLabel">
+          FOCUS PLANE
+        </div>
+      </Html>
     </>
   );
 }
