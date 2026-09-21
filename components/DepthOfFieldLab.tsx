@@ -461,7 +461,15 @@ const [cameraAngle, setCameraAngle] = useState(0);
                   <div className="panelHeading"><span>3D viewfinder</span><span className="readout">f/{aperture.toFixed(1)} · {focal}mm · {focus.toFixed(1)}m</span></div>
                   <div className="canvasFrame">
                     <Canvas dpr={[1, 2]} camera={{ position: [0, 2.8, -10], fov: 48 }} gl={{ antialias: true }}>
-                      <Scene aperture={aperture} focal={focal} focus={focus} subject={subject} playing={playing} />
+                      <Scene
+  aperture={aperture}
+  focal={focal}
+  focus={focus}
+  subject={subject}
+  playing={playing}
+  cameraHeight={cameraHeight}
+  cameraAngle={cameraAngle}
+/>
                     </Canvas>
                   </div>
                   <div className="sceneFooter"><span>Orbit: drag · Zoom: wheel</span><span>Focus plane: {focus.toFixed(1)}m</span></div>
