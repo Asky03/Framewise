@@ -415,7 +415,18 @@ const [cameraAngle, setCameraAngle] = useState(0);
     setSubject(preset.subject);
   };
 
-  const reset = () => apply({ name: "Reset", aperture: 2.8, focal: 50, focus: 4, subject: 4 });
+  const reset = () => {
+  apply({
+    name: "Reset",
+    aperture: 2.8,
+    focal: 50,
+    focus: 4,
+    subject: 4
+  });
+
+  setCameraHeight(0);
+  setCameraAngle(0);
+};
 
   return (
     <main>
@@ -471,6 +482,29 @@ const [cameraAngle, setCameraAngle] = useState(0);
                 <RangeControl label="Focal length" value={focal} min={18} max={200} step={1} display={`${focal}mm`} onChange={setFocal} left="18mm · wide" right="200mm · telephoto" />
                 <RangeControl label="Focus distance" value={focus} min={0.8} max={9} step={0.1} display={`${focus.toFixed(1)}m`} onChange={setFocus} left="Close" right="Far" />
                 <RangeControl label="Subject position" value={subject} min={0.8} max={10} step={0.1} display={`${subject.toFixed(1)}m`} onChange={setSubject} left="Near" right="Far" />
+                <RangeControl
+  label="Camera height"
+  value={cameraHeight}
+  min={-2}
+  max={3}
+  step={0.1}
+  display={`${cameraHeight.toFixed(1)}m`}
+  onChange={setCameraHeight}
+  left="Low angle"
+  right="High angle"
+/>
+
+<RangeControl
+  label="Camera angle"
+  value={cameraAngle}
+  min={-45}
+  max={45}
+  step={1}
+  display={`${cameraAngle}°`}
+  onChange={setCameraAngle}
+  left="Left"
+  right="Right"
+/>
                 <div className="settingDivider" />
                 <div className="fieldLabel">Learning level</div>
                 <div className="modeSwitch">
