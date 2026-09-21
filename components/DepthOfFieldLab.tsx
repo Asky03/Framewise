@@ -397,9 +397,13 @@ function OpticalDiagram({ focus, aperture, subject }: { focus: number; aperture:
 
 export default function DepthOfFieldLab() {
   const [aperture, setAperture] = useState(2.8);
-  const [focal, setFocal] = useState(50);
-  const [focus, setFocus] = useState(4);
-  const [subject, setSubject] = useState(4);
+const [focal, setFocal] = useState(50);
+const [focus, setFocus] = useState(4);
+const [subject, setSubject] = useState(4);
+
+// New camera controls
+const [cameraHeight, setCameraHeight] = useState(0);
+const [cameraAngle, setCameraAngle] = useState(0);
   const [mode, setMode] = useState<Mode>("beginner");
   const [camera, setCamera] = useState("Sony Alpha 6700 reference");
   const [playing, setPlaying] = useState(true);
