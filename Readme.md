@@ -26,4 +26,3 @@ npm run build
 - Animated 3D scene with play/pause and reset controls.
 - Separate 3D view and optical side-view diagram.
 - Focus plane, near/far depth-of-field bounds, and subject movement.
-- Beginner, intermediate, and professional explanations.
