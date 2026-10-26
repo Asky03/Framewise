@@ -27,4 +27,3 @@ npm run build
 - Separate 3D view and optical side-view diagram.
 - Focus plane, near/far depth-of-field bounds, and subject movement.
 - Beginner, intermediate, and professional explanations.
-- No external image or camera trademark assets are bundled; the Sony Alpha 6700 option is a learning reference profile.
